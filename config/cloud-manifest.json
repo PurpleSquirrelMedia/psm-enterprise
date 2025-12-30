@@ -90,7 +90,7 @@
     "cloudflare": {
       "status": "active",
       "url": "https://psm-dashboard.pages.dev",
-      "note": "Pages deployed, Workers need subdomain registration",
+      "workers_url": "https://psm-api.purplesquirrelnetworks.workers.dev",
       "services": {
         "workers": {
           "tier": "Free",

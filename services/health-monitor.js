@@ -17,7 +17,7 @@ const ENDPOINTS = {
   },
   cloudflare: {
     pages: 'https://psm-dashboard.pages.dev',
-    workers: 'https://psm-api.purplesquirrel.workers.dev/api/status',
+    workers: 'https://psm-api.purplesquirrelnetworks.workers.dev/api/status',
   },
   vercel: {
     functions: 'https://vercel-dusky-pi.vercel.app/api/status',
@@ -29,6 +29,11 @@ const ENDPOINTS = {
   },
   gcp: {
     functions: 'https://us-central1-gmail-481217.cloudfunctions.net/psm-status',
+  },
+  ibm: {
+    bridge: 'https://psm-bridge.24izjue4x2ll.us-south.codeengine.appdomain.cloud',
+    ai: 'https://psm-ai.24izjue4x2ll.us-south.codeengine.appdomain.cloud',
+    events: 'https://psm-events.24izjue4x2ll.us-south.codeengine.appdomain.cloud',
   },
   github: {
     pages: 'https://purplesquirrelmedia.github.io/psm-enterprise/',
