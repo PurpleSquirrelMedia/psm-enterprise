@@ -30,6 +30,9 @@ const ENDPOINTS = {
   gcp: {
     functions: 'https://us-central1-gmail-481217.cloudfunctions.net/psm-status',
   },
+  github: {
+    pages: 'https://purplesquirrelmedia.github.io/psm-enterprise/',
+  },
   local: {
     processor: 'http://localhost:3001/api/status',
     gateway: 'http://localhost:3002/api/status',
