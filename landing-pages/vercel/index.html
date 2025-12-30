@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Platform | Purple Squirrel Media</title>
+  <meta name="description" content="Unified API gateway for all your media operations. One endpoint. Infinite possibilities.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0C0C0C;
+      --surface: #161616;
+      --border: #262626;
+      --purple: #A855F7;
+      --pink: #EC4899;
+      --blue: #3B82F6;
+      --white: #FAFAFA;
+      --gray: #A1A1AA;
+      --dim: #52525B;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    /* Gradient blur */
+    .gradient-blur {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .gradient-blur.one {
+      top: -100px;
+      left: -100px;
+      background: var(--purple);
+    }
+
+    .gradient-blur.two {
+      bottom: -100px;
+      right: -100px;
+      background: var(--pink);
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--pink) 100%);
+      border-radius: 6px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      font-size: 0.8rem;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover { color: var(--white); }
+
+    /* Main */
+    main {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8rem 2rem 4rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+      text-align: center;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.7rem;
+      color: var(--gray);
+      margin-bottom: 2rem;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: #22C55E;
+      border-radius: 50%;
+    }
+
+    /* Hero */
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--purple) 0%, var(--pink) 50%, var(--blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--gray);
+      max-width: 500px;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+    }
+
+    /* Code block */
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 600px;
+      text-align: left;
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .code-dot.red { background: #EF4444; }
+    .code-dot.yellow { background: #F59E0B; }
+    .code-dot.green { background: #22C55E; }
+
+    .code-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--dim);
+      margin-left: auto;
+    }
+
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+
+    .token-keyword { color: var(--purple); }
+    .token-string { color: #22C55E; }
+    .token-comment { color: var(--dim); }
+    .token-property { color: var(--pink); }
+    .token-number { color: var(--blue); }
+
+    /* CTA buttons */
+    .cta-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .cta-primary {
+      background: var(--white);
+      color: var(--bg);
+    }
+
+    .cta-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+    }
+
+    .cta-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--white);
+    }
+
+    .cta-secondary:hover {
+      border-color: var(--gray);
+    }
+
+    /* Endpoints preview */
+    .endpoints {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      width: 100%;
+      max-width: 700px;
+      margin-top: 4rem;
+    }
+
+    @media (max-width: 700px) {
+      .endpoints { grid-template-columns: 1fr; }
+    }
+
+    .endpoint {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .endpoint:hover {
+      border-color: var(--purple);
+    }
+
+    .endpoint-method {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      background: rgba(34, 197, 94, 0.1);
+      color: #22C55E;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+
+    .endpoint-method.post {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--blue);
+    }
+
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--white);
+    }
+
+    .endpoint-desc {
+      font-size: 0.7rem;
+      color: var(--dim);
+      margin-top: 0.5rem;
+    }
+
+    /* Footer */
+    footer {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-blur one"></div>
+  <div class="gradient-blur two"></div>
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon"></div>
+      Purple Squirrel
+    </div>
+    <nav class="nav-links">
+      <a href="https://purplesquirrel.media">Home</a>
+      <a href="mailto:hello@purplesquirrel.media">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="badge">
+      <div class="badge-dot"></div>
+      API v2.0 Now Available
+    </div>
+
+    <h1>One API.<br><span>Infinite possibilities.</span></h1>
+    <p class="subtitle">
+      Unified gateway for media processing, AI analysis, and content delivery.
+      Built for developers who ship fast.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dot red"></div>
+        <div class="code-dot yellow"></div>
+        <div class="code-dot green"></div>
+        <span class="code-title">request.js</span>
+      </div>
+      <pre><code><span class="token-keyword">const</span> response = <span class="token-keyword">await</span> fetch(<span class="token-string">'https://api.purplesquirrel.media/v2/analyze'</span>, {
+  <span class="token-property">method</span>: <span class="token-string">'POST'</span>,
+  <span class="token-property">headers</span>: { <span class="token-string">'Authorization'</span>: <span class="token-string">`Bearer ${API_KEY}`</span> },
+  <span class="token-property">body</span>: JSON.stringify({ <span class="token-property">url</span>: mediaUrl })
+});
+
+<span class="token-keyword">const</span> { insights, tags, sentiment } = <span class="token-keyword">await</span> response.json();</code></pre>
+    </div>
+
+    <div class="cta-group">
+      <a href="mailto:hello@purplesquirrel.media" class="cta cta-primary">
+        Get API Key
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="https://github.com/PurpleSquirrelMedia/psm-enterprise" class="cta cta-secondary">
+        View Documentation
+      </a>
+    </div>
+
+    <div class="endpoints">
+      <div class="endpoint">
+        <span class="endpoint-method">GET</span>
+        <div class="endpoint-path">/v2/status</div>
+        <div class="endpoint-desc">System health check</div>
+      </div>
+      <div class="endpoint">
+        <span class="endpoint-method post">POST</span>
+        <div class="endpoint-path">/v2/analyze</div>
+        <div class="endpoint-desc">AI media analysis</div>
+      </div>
+      <div class="endpoint">
+        <span class="endpoint-method post">POST</span>
+        <div class="endpoint-path">/v2/transcribe</div>
+        <div class="endpoint-desc">Speech to text</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>purplesquirrel.media</footer>
+</body>
+</html>

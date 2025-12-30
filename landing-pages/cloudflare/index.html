@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Media Processing | Purple Squirrel Media</title>
+  <meta name="description" content="Transform your media with enterprise-grade AI processing. Vision AI, Speech Recognition, and Content Analysis at scale.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #08060d;
+      --abyss: #0f0a18;
+      --purple-deep: #1a0f2e;
+      --purple-core: #4A1D96;
+      --violet-electric: #7C3AED;
+      --violet-bright: #A78BFA;
+      --white: #F8F7FF;
+      --gray: #9CA3AF;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--void);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated gradient mesh background */
+    .gradient-mesh {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(74, 29, 150, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 80% at 80% 20%, rgba(124, 58, 237, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 50% at 60% 80%, rgba(74, 29, 150, 0.25) 0%, transparent 50%);
+      animation: meshShift 20s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes meshShift {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.1) rotate(3deg); }
+    }
+
+    /* Floating particles */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--violet-bright);
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: float 15s infinite ease-in-out;
+    }
+
+    .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 12s; }
+    .particle:nth-child(2) { left: 20%; top: 80%; animation-delay: 2s; animation-duration: 18s; }
+    .particle:nth-child(3) { left: 60%; top: 30%; animation-delay: 4s; animation-duration: 14s; }
+    .particle:nth-child(4) { left: 80%; top: 70%; animation-delay: 1s; animation-duration: 16s; }
+    .particle:nth-child(5) { left: 40%; top: 50%; animation-delay: 3s; animation-duration: 20s; }
+    .particle:nth-child(6) { left: 90%; top: 10%; animation-delay: 5s; animation-duration: 13s; }
+    .particle:nth-child(7) { left: 5%; top: 60%; animation-delay: 2.5s; animation-duration: 17s; }
+    .particle:nth-child(8) { left: 70%; top: 90%; animation-delay: 1.5s; animation-duration: 15s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+      25% { transform: translate(30px, -40px) scale(1.5); opacity: 0.7; }
+      50% { transform: translate(-20px, -80px) scale(1); opacity: 0.3; }
+      75% { transform: translate(40px, -30px) scale(1.3); opacity: 0.6; }
+    }
+
+    /* Grain overlay */
+    .grain {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+    }
+
+    /* Main content */
+    main {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Logo */
+    .logo {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--violet-bright);
+      opacity: 0;
+      animation: fadeSlideDown 1s ease forwards 0.2s;
+    }
+
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero section */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    .hero-content {
+      opacity: 0;
+      animation: fadeSlideUp 1s ease forwards 0.4s;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--violet-electric);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--violet-electric));
+    }
+
+    @media (max-width: 900px) {
+      .eyebrow { justify-content: center; }
+      .eyebrow::before { display: none; }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, var(--white) 0%, var(--violet-bright) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-description {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--gray);
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero-description { margin-left: auto; margin-right: auto; }
+    }
+
+    /* CTA Button */
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, var(--purple-core) 0%, var(--violet-electric) 100%);
+      border: none;
+      border-radius: 4px;
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--violet-electric) 0%, var(--violet-bright) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(124, 58, 237, 0.3);
+    }
+
+    .cta:hover::before { opacity: 1; }
+
+    .cta span { position: relative; z-index: 1; }
+
+    .cta svg { position: relative; z-index: 1; transition: transform 0.3s ease; }
+
+    .cta:hover svg { transform: translateX(4px); }
+
+    /* Visual element */
+    .hero-visual {
+      position: relative;
+      opacity: 0;
+      animation: fadeSlideUp 1s ease forwards 0.6s;
+    }
+
+    .orb-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orb {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(167, 139, 250, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(124, 58, 237, 0.3) 0%, transparent 50%),
+        linear-gradient(135deg, var(--purple-deep) 0%, var(--abyss) 100%);
+      box-shadow:
+        0 0 80px rgba(124, 58, 237, 0.4),
+        inset 0 0 60px rgba(167, 139, 250, 0.1);
+      animation: orbPulse 4s ease-in-out infinite;
+      position: relative;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 80px rgba(124, 58, 237, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 120px rgba(124, 58, 237, 0.6); }
+    }
+
+    .orbit-ring {
+      position: absolute;
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      border-radius: 50%;
+      animation: spin 20s linear infinite;
+    }
+
+    .orbit-ring:nth-child(2) { width: 380px; height: 380px; animation-duration: 25s; }
+    .orbit-ring:nth-child(3) { width: 460px; height: 460px; animation-duration: 30s; animation-direction: reverse; }
+
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .orbit-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--violet-electric);
+      border-radius: 50%;
+      box-shadow: 0 0 20px var(--violet-electric);
+    }
+
+    .orbit-ring:nth-child(2) .orbit-dot { top: -4px; left: 50%; }
+    .orbit-ring:nth-child(3) .orbit-dot { bottom: -4px; right: 20%; }
+
+    /* Features section */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 6rem;
+      opacity: 0;
+      animation: fadeSlideUp 1s ease forwards 0.8s;
+    }
+
+    @media (max-width: 900px) {
+      .features { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+    }
+
+    .feature {
+      padding: 2rem;
+      background: linear-gradient(135deg, rgba(26, 15, 46, 0.6) 0%, rgba(15, 10, 24, 0.8) 100%);
+      border: 1px solid rgba(124, 58, 237, 0.15);
+      border-radius: 8px;
+      transition: all 0.4s ease;
+    }
+
+    .feature:hover {
+      border-color: rgba(124, 58, 237, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1.5rem;
+      color: var(--violet-electric);
+    }
+
+    .feature h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--white);
+    }
+
+    .feature p {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--gray);
+    }
+
+    /* Footer */
+    footer {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      font-size: 0.7rem;
+      color: var(--gray);
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-mesh"></div>
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  <div class="grain"></div>
+
+  <div class="logo">Purple Squirrel</div>
+
+  <main>
+    <div class="hero">
+      <div class="hero-content">
+        <div class="eyebrow">AI Media Processing</div>
+        <h1>Transform Your Media with AI</h1>
+        <p class="hero-description">
+          Enterprise-grade artificial intelligence for media analysis, transcription,
+          and content understanding. Process at scale with zero infrastructure overhead.
+        </p>
+        <a href="mailto:hello@purplesquirrel.media" class="cta">
+          <span>Get Started</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+      <div class="hero-visual">
+        <div class="orb-container">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orb"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+        <h3>Vision AI</h3>
+        <p>Advanced image recognition, object detection, and visual content analysis powered by Azure Cognitive Services.</p>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+        </svg>
+        <h3>Speech-to-Text</h3>
+        <p>Real-time transcription with speaker diarization, supporting 100+ languages with industry-leading accuracy.</p>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+        </svg>
+        <h3>Content Analysis</h3>
+        <p>Extract insights, sentiment, and key entities from any media format. Automated tagging and categorization.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>purplesquirrel.media</footer>
+</body>
+</html>
