@@ -10,15 +10,58 @@
       "status": "active",
       "region": "eastus",
       "services": {
-        "vision": { "tier": "F0", "quota": "5000/month" },
-        "speech": { "tier": "F0", "quota": "5hrs/month" },
-        "language": { "tier": "F0", "quota": "5000/month" },
-        "docint": { "tier": "F0", "quota": "500/month" },
-        "translator": { "tier": "F0", "quota": "2M chars/month" },
-        "moderator": { "tier": "F0", "quota": "5000/month" },
-        "staticWebApp": { "tier": "Free", "url": "https://purplesquirrel.media" },
-        "functions": { "tier": "Consumption", "quota": "1M/month" },
-        "cosmosDB": { "tier": "Serverless", "quota": "1M RU/month" }
+        "vision": {
+          "tier": "F0",
+          "quota": "5000/month"
+        },
+        "speech": {
+          "tier": "F0",
+          "quota": "5hrs/month"
+        },
+        "language": {
+          "tier": "F0",
+          "quota": "5000/month"
+        },
+        "docint": {
+          "tier": "F0",
+          "quota": "500/month"
+        },
+        "translator": {
+          "tier": "F0",
+          "quota": "2M chars/month"
+        },
+        "moderator": {
+          "tier": "F0",
+          "quota": "5000/month"
+        },
+        "staticWebApp": {
+          "tier": "Free",
+          "url": "https://purplesquirrel.media"
+        },
+        "functions": {
+          "tier": "Consumption",
+          "quota": "1M/month"
+        },
+        "cosmosDB": {
+          "tier": "Serverless",
+          "quota": "1M RU/month"
+        },
+        "containerApps": {
+          "url": "https://psm-bridge.orangestone-232219a7.eastus.azurecontainerapps.io",
+          "status": "active"
+        },
+        "logicApps": {
+          "workflow": "psm-multicloud-router",
+          "status": "active"
+        },
+        "dataFactory": {
+          "pipeline": "MultiCloudSync",
+          "status": "active"
+        },
+        "iotHub": {
+          "devices": 4,
+          "status": "active"
+        }
       }
     },
     "oracle": {
@@ -26,10 +69,22 @@
       "region": "us-chicago-1",
       "ip": "163.192.105.31",
       "services": {
-        "compute": { "tier": "Always Free", "specs": "4 OCPU, 24GB RAM" },
-        "objectStorage": { "tier": "Always Free", "quota": "10GB" },
-        "blockVolume": { "tier": "Always Free", "quota": "200GB" },
-        "loadBalancer": { "tier": "Always Free", "quota": "1 instance" }
+        "compute": {
+          "tier": "Always Free",
+          "specs": "4 OCPU, 24GB RAM"
+        },
+        "objectStorage": {
+          "tier": "Always Free",
+          "quota": "10GB"
+        },
+        "blockVolume": {
+          "tier": "Always Free",
+          "quota": "200GB"
+        },
+        "loadBalancer": {
+          "tier": "Always Free",
+          "quota": "1 instance"
+        }
       }
     },
     "cloudflare": {
@@ -37,156 +92,344 @@
       "url": "https://psm-dashboard.pages.dev",
       "note": "Pages deployed, Workers need subdomain registration",
       "services": {
-        "workers": { "tier": "Free", "quota": "100K req/day", "deployed": true, "needsSubdomain": true },
-        "pages": { "tier": "Free", "quota": "500 builds/month" },
-        "r2": { "tier": "Free", "quota": "10GB storage" },
-        "d1": { "tier": "Free", "quota": "5GB database" },
-        "kv": { "tier": "Free", "quota": "100K reads/day" },
-        "images": { "tier": "Free", "quota": "5K images" },
-        "stream": { "tier": "Free", "quota": "1K minutes" }
+        "workers": {
+          "tier": "Free",
+          "quota": "100K req/day",
+          "deployed": true,
+          "needsSubdomain": true
+        },
+        "pages": {
+          "tier": "Free",
+          "quota": "500 builds/month"
+        },
+        "r2": {
+          "tier": "Free",
+          "quota": "10GB storage"
+        },
+        "d1": {
+          "tier": "Free",
+          "quota": "5GB database"
+        },
+        "kv": {
+          "tier": "Free",
+          "quota": "100K reads/day"
+        },
+        "images": {
+          "tier": "Free",
+          "quota": "5K images"
+        },
+        "stream": {
+          "tier": "Free",
+          "quota": "1K minutes"
+        }
       }
     },
     "vercel": {
       "status": "active",
       "url": "https://vercel-dusky-pi.vercel.app",
       "services": {
-        "hosting": { "tier": "Hobby", "quota": "100GB bandwidth" },
-        "functions": { "tier": "Hobby", "quota": "100GB-hrs" },
-        "edge": { "tier": "Hobby", "quota": "1M invocations" },
-        "analytics": { "tier": "Free", "quota": "2.5K events/month" },
-        "postgres": { "tier": "Free", "quota": "256MB" },
-        "kv": { "tier": "Free", "quota": "3K requests/day" },
-        "blob": { "tier": "Free", "quota": "1GB storage" }
+        "hosting": {
+          "tier": "Hobby",
+          "quota": "100GB bandwidth"
+        },
+        "functions": {
+          "tier": "Hobby",
+          "quota": "100GB-hrs"
+        },
+        "edge": {
+          "tier": "Hobby",
+          "quota": "1M invocations"
+        },
+        "analytics": {
+          "tier": "Free",
+          "quota": "2.5K events/month"
+        },
+        "postgres": {
+          "tier": "Free",
+          "quota": "256MB"
+        },
+        "kv": {
+          "tier": "Free",
+          "quota": "3K requests/day"
+        },
+        "blob": {
+          "tier": "Free",
+          "quota": "1GB storage"
+        }
       }
     },
     "aws": {
       "status": "pending",
       "services": {
-        "lambda": { "tier": "Free", "quota": "1M requests/month" },
-        "s3": { "tier": "Free", "quota": "5GB storage" },
-        "dynamodb": { "tier": "Free", "quota": "25GB + 25 WCU" },
-        "apiGateway": { "tier": "Free", "quota": "1M calls/month" },
-        "cognito": { "tier": "Free", "quota": "50K MAU" },
-        "sns": { "tier": "Free", "quota": "1M publishes" },
-        "sqs": { "tier": "Free", "quota": "1M requests" },
-        "ses": { "tier": "Free", "quota": "62K emails/month" },
-        "cloudwatch": { "tier": "Free", "quota": "10 metrics" }
+        "lambda": {
+          "tier": "Free",
+          "quota": "1M requests/month"
+        },
+        "s3": {
+          "tier": "Free",
+          "quota": "5GB storage"
+        },
+        "dynamodb": {
+          "tier": "Free",
+          "quota": "25GB + 25 WCU"
+        },
+        "apiGateway": {
+          "tier": "Free",
+          "quota": "1M calls/month"
+        },
+        "cognito": {
+          "tier": "Free",
+          "quota": "50K MAU"
+        },
+        "sns": {
+          "tier": "Free",
+          "quota": "1M publishes"
+        },
+        "sqs": {
+          "tier": "Free",
+          "quota": "1M requests"
+        },
+        "ses": {
+          "tier": "Free",
+          "quota": "62K emails/month"
+        },
+        "cloudwatch": {
+          "tier": "Free",
+          "quota": "10 metrics"
+        }
       }
     },
     "gcp": {
       "status": "active",
       "url": "https://us-central1-gmail-481217.cloudfunctions.net/psm-status",
       "services": {
-        "cloudFunctions": { "tier": "Free", "quota": "2M invocations" },
-        "firestore": { "tier": "Free", "quota": "1GB storage" },
-        "cloudRun": { "tier": "Free", "quota": "2M requests" },
-        "storage": { "tier": "Free", "quota": "5GB" },
-        "bigquery": { "tier": "Free", "quota": "1TB queries/month" },
-        "pubsub": { "tier": "Free", "quota": "10GB/month" },
-        "secretManager": { "tier": "Free", "quota": "6 versions" }
+        "cloudFunctions": {
+          "tier": "Free",
+          "quota": "2M invocations"
+        },
+        "firestore": {
+          "tier": "Free",
+          "quota": "1GB storage"
+        },
+        "cloudRun": {
+          "tier": "Free",
+          "quota": "2M requests"
+        },
+        "storage": {
+          "tier": "Free",
+          "quota": "5GB"
+        },
+        "bigquery": {
+          "tier": "Free",
+          "quota": "1TB queries/month"
+        },
+        "pubsub": {
+          "tier": "Free",
+          "quota": "10GB/month"
+        },
+        "secretManager": {
+          "tier": "Free",
+          "quota": "6 versions"
+        }
       }
     },
     "supabase": {
       "status": "pending",
       "services": {
-        "postgres": { "tier": "Free", "quota": "500MB" },
-        "auth": { "tier": "Free", "quota": "50K MAU" },
-        "storage": { "tier": "Free", "quota": "1GB" },
-        "realtime": { "tier": "Free", "quota": "200 connections" },
-        "edge": { "tier": "Free", "quota": "500K invocations" }
+        "postgres": {
+          "tier": "Free",
+          "quota": "500MB"
+        },
+        "auth": {
+          "tier": "Free",
+          "quota": "50K MAU"
+        },
+        "storage": {
+          "tier": "Free",
+          "quota": "1GB"
+        },
+        "realtime": {
+          "tier": "Free",
+          "quota": "200 connections"
+        },
+        "edge": {
+          "tier": "Free",
+          "quota": "500K invocations"
+        }
       }
     },
     "mongodb": {
       "status": "pending",
       "services": {
-        "atlas": { "tier": "M0 Free", "quota": "512MB storage" },
-        "realm": { "tier": "Free", "quota": "1M requests" },
-        "charts": { "tier": "Free", "quota": "5 charts" }
+        "atlas": {
+          "tier": "M0 Free",
+          "quota": "512MB storage"
+        },
+        "realm": {
+          "tier": "Free",
+          "quota": "1M requests"
+        },
+        "charts": {
+          "tier": "Free",
+          "quota": "5 charts"
+        }
       }
     },
     "planetscale": {
       "status": "pending",
       "services": {
-        "mysql": { "tier": "Hobby", "quota": "5GB, 1B rows" }
+        "mysql": {
+          "tier": "Hobby",
+          "quota": "5GB, 1B rows"
+        }
       }
     },
     "neon": {
       "status": "pending",
       "services": {
-        "postgres": { "tier": "Free", "quota": "3GB storage" },
-        "branching": { "tier": "Free", "quota": "10 branches" }
+        "postgres": {
+          "tier": "Free",
+          "quota": "3GB storage"
+        },
+        "branching": {
+          "tier": "Free",
+          "quota": "10 branches"
+        }
       }
     },
     "turso": {
       "status": "pending",
       "services": {
-        "libsql": { "tier": "Free", "quota": "9GB total, 500 DBs" }
+        "libsql": {
+          "tier": "Free",
+          "quota": "9GB total, 500 DBs"
+        }
       }
     },
     "upstash": {
       "status": "pending",
       "services": {
-        "redis": { "tier": "Free", "quota": "10K commands/day" },
-        "kafka": { "tier": "Free", "quota": "10K messages/day" },
-        "qstash": { "tier": "Free", "quota": "500 messages/day" },
-        "vector": { "tier": "Free", "quota": "10K vectors" }
+        "redis": {
+          "tier": "Free",
+          "quota": "10K commands/day"
+        },
+        "kafka": {
+          "tier": "Free",
+          "quota": "10K messages/day"
+        },
+        "qstash": {
+          "tier": "Free",
+          "quota": "500 messages/day"
+        },
+        "vector": {
+          "tier": "Free",
+          "quota": "10K vectors"
+        }
       }
     },
     "fauna": {
       "status": "pending",
       "services": {
-        "database": { "tier": "Free", "quota": "100K read ops/day" }
+        "database": {
+          "tier": "Free",
+          "quota": "100K read ops/day"
+        }
       }
     },
     "cockroachdb": {
       "status": "pending",
       "services": {
-        "serverless": { "tier": "Free", "quota": "5GB storage" }
+        "serverless": {
+          "tier": "Free",
+          "quota": "5GB storage"
+        }
       }
     },
     "tidb": {
       "status": "pending",
       "services": {
-        "serverless": { "tier": "Free", "quota": "5GB storage" }
+        "serverless": {
+          "tier": "Free",
+          "quota": "5GB storage"
+        }
       }
     },
     "netlify": {
       "status": "active",
       "url": "https://psm-enterprise.netlify.app",
       "services": {
-        "hosting": { "tier": "Free", "quota": "100GB bandwidth" },
-        "functions": { "tier": "Free", "quota": "125K invocations" },
-        "forms": { "tier": "Free", "quota": "100 submissions" },
-        "identity": { "tier": "Free", "quota": "1K users" }
+        "hosting": {
+          "tier": "Free",
+          "quota": "100GB bandwidth"
+        },
+        "functions": {
+          "tier": "Free",
+          "quota": "125K invocations"
+        },
+        "forms": {
+          "tier": "Free",
+          "quota": "100 submissions"
+        },
+        "identity": {
+          "tier": "Free",
+          "quota": "1K users"
+        }
       }
     },
     "railway": {
       "status": "pending",
       "services": {
-        "compute": { "tier": "Trial", "quota": "$5 credits/month" }
+        "compute": {
+          "tier": "Trial",
+          "quota": "$5 credits/month"
+        }
       }
     },
     "render": {
       "status": "pending",
       "services": {
-        "webService": { "tier": "Free", "quota": "750 hrs/month" },
-        "staticSite": { "tier": "Free", "quota": "100GB bandwidth" },
-        "postgres": { "tier": "Free", "quota": "256MB, 90 days" },
-        "redis": { "tier": "Free", "quota": "25MB, 90 days" }
+        "webService": {
+          "tier": "Free",
+          "quota": "750 hrs/month"
+        },
+        "staticSite": {
+          "tier": "Free",
+          "quota": "100GB bandwidth"
+        },
+        "postgres": {
+          "tier": "Free",
+          "quota": "256MB, 90 days"
+        },
+        "redis": {
+          "tier": "Free",
+          "quota": "25MB, 90 days"
+        }
       }
     },
     "deno": {
       "status": "pending",
       "services": {
-        "deploy": { "tier": "Free", "quota": "1M requests/month" },
-        "kv": { "tier": "Free", "quota": "1GB storage" }
+        "deploy": {
+          "tier": "Free",
+          "quota": "1M requests/month"
+        },
+        "kv": {
+          "tier": "Free",
+          "quota": "1GB storage"
+        }
       }
     },
     "flyio": {
       "status": "pending",
       "services": {
-        "machines": { "tier": "Free", "quota": "3 shared VMs" },
-        "postgres": { "tier": "Free", "quota": "3GB" }
+        "machines": {
+          "tier": "Free",
+          "quota": "3 shared VMs"
+        },
+        "postgres": {
+          "tier": "Free",
+          "quota": "3GB"
+        }
       }
     },
     "github": {
@@ -194,197 +437,410 @@
       "url": "https://github.com/PurpleSquirrelMedia/psm-enterprise",
       "pages_url": "https://purplesquirrelmedia.github.io/psm-enterprise/",
       "services": {
-        "actions": { "tier": "Free", "quota": "2000 mins/month" },
-        "packages": { "tier": "Free", "quota": "500MB storage" },
-        "pages": { "tier": "Free", "quota": "1GB site" },
-        "codespaces": { "tier": "Free", "quota": "60 hrs/month" }
+        "actions": {
+          "tier": "Free",
+          "quota": "2000 mins/month"
+        },
+        "packages": {
+          "tier": "Free",
+          "quota": "500MB storage"
+        },
+        "pages": {
+          "tier": "Free",
+          "quota": "1GB site"
+        },
+        "codespaces": {
+          "tier": "Free",
+          "quota": "60 hrs/month"
+        }
       }
     },
     "gitlab": {
       "status": "pending",
       "services": {
-        "cicd": { "tier": "Free", "quota": "400 mins/month" },
-        "registry": { "tier": "Free", "quota": "5GB storage" },
-        "pages": { "tier": "Free", "quota": "unlimited" }
+        "cicd": {
+          "tier": "Free",
+          "quota": "400 mins/month"
+        },
+        "registry": {
+          "tier": "Free",
+          "quota": "5GB storage"
+        },
+        "pages": {
+          "tier": "Free",
+          "quota": "unlimited"
+        }
       }
     },
     "backblaze": {
       "status": "pending",
       "services": {
-        "b2": { "tier": "Free", "quota": "10GB storage" }
+        "b2": {
+          "tier": "Free",
+          "quota": "10GB storage"
+        }
       }
     },
     "imagekit": {
       "status": "pending",
       "services": {
-        "cdn": { "tier": "Free", "quota": "20GB bandwidth/month" },
-        "storage": { "tier": "Free", "quota": "20GB media" }
+        "cdn": {
+          "tier": "Free",
+          "quota": "20GB bandwidth/month"
+        },
+        "storage": {
+          "tier": "Free",
+          "quota": "20GB media"
+        }
       }
     },
     "cloudinary": {
       "status": "pending",
       "services": {
-        "media": { "tier": "Free", "quota": "25GB storage + transforms" }
+        "media": {
+          "tier": "Free",
+          "quota": "25GB storage + transforms"
+        }
       }
     },
     "uploadcare": {
       "status": "pending",
       "services": {
-        "uploads": { "tier": "Free", "quota": "3K uploads/month" },
-        "cdn": { "tier": "Free", "quota": "3GB storage" }
+        "uploads": {
+          "tier": "Free",
+          "quota": "3K uploads/month"
+        },
+        "cdn": {
+          "tier": "Free",
+          "quota": "3GB storage"
+        }
       }
     },
     "algolia": {
       "status": "pending",
       "services": {
-        "search": { "tier": "Free", "quota": "10K records, 10K searches" }
+        "search": {
+          "tier": "Free",
+          "quota": "10K records, 10K searches"
+        }
       }
     },
     "meilisearch": {
       "status": "pending",
       "services": {
-        "cloud": { "tier": "Free", "quota": "100K documents" }
+        "cloud": {
+          "tier": "Free",
+          "quota": "100K documents"
+        }
       }
     },
     "typesense": {
       "status": "pending",
       "services": {
-        "cloud": { "tier": "Free", "quota": "10K documents" }
+        "cloud": {
+          "tier": "Free",
+          "quota": "10K documents"
+        }
       }
     },
     "pusher": {
       "status": "pending",
       "services": {
-        "channels": { "tier": "Free", "quota": "200K messages/day" },
-        "beams": { "tier": "Free", "quota": "1K devices" }
+        "channels": {
+          "tier": "Free",
+          "quota": "200K messages/day"
+        },
+        "beams": {
+          "tier": "Free",
+          "quota": "1K devices"
+        }
       }
     },
     "ably": {
       "status": "pending",
       "services": {
-        "realtime": { "tier": "Free", "quota": "6M messages/month" }
+        "realtime": {
+          "tier": "Free",
+          "quota": "6M messages/month"
+        }
       }
     },
     "onesignal": {
       "status": "pending",
       "services": {
-        "push": { "tier": "Free", "quota": "unlimited mobile" },
-        "email": { "tier": "Free", "quota": "10K/month" }
+        "push": {
+          "tier": "Free",
+          "quota": "unlimited mobile"
+        },
+        "email": {
+          "tier": "Free",
+          "quota": "10K/month"
+        }
       }
     },
     "sendgrid": {
       "status": "pending",
       "services": {
-        "email": { "tier": "Free", "quota": "100 emails/day" }
+        "email": {
+          "tier": "Free",
+          "quota": "100 emails/day"
+        }
       }
     },
     "mailgun": {
       "status": "pending",
       "services": {
-        "email": { "tier": "Free", "quota": "5K emails/month" }
+        "email": {
+          "tier": "Free",
+          "quota": "5K emails/month"
+        }
       }
     },
     "resend": {
       "status": "pending",
       "services": {
-        "email": { "tier": "Free", "quota": "3K emails/month" }
+        "email": {
+          "tier": "Free",
+          "quota": "3K emails/month"
+        }
       }
     },
     "grafana": {
       "status": "pending",
       "services": {
-        "cloud": { "tier": "Free", "quota": "10K metrics, 50GB logs" }
+        "cloud": {
+          "tier": "Free",
+          "quota": "10K metrics, 50GB logs"
+        }
       }
     },
     "newrelic": {
       "status": "pending",
       "services": {
-        "observability": { "tier": "Free", "quota": "100GB/month" }
+        "observability": {
+          "tier": "Free",
+          "quota": "100GB/month"
+        }
       }
     },
     "sentry": {
       "status": "pending",
       "services": {
-        "errors": { "tier": "Free", "quota": "5K errors/month" }
+        "errors": {
+          "tier": "Free",
+          "quota": "5K errors/month"
+        }
       }
     },
     "posthog": {
       "status": "pending",
       "services": {
-        "analytics": { "tier": "Free", "quota": "1M events/month" }
+        "analytics": {
+          "tier": "Free",
+          "quota": "1M events/month"
+        }
       }
     },
     "mixpanel": {
       "status": "pending",
       "services": {
-        "analytics": { "tier": "Free", "quota": "1M events/month" }
+        "analytics": {
+          "tier": "Free",
+          "quota": "1M events/month"
+        }
       }
     },
     "plausible": {
       "status": "pending",
       "services": {
-        "analytics": { "tier": "Free Trial", "quota": "30 days" }
+        "analytics": {
+          "tier": "Free Trial",
+          "quota": "30 days"
+        }
       }
     },
     "crisp": {
       "status": "pending",
       "services": {
-        "chat": { "tier": "Free", "quota": "2 seats" }
+        "chat": {
+          "tier": "Free",
+          "quota": "2 seats"
+        }
       }
     },
     "tawk": {
       "status": "pending",
       "services": {
-        "chat": { "tier": "Free", "quota": "unlimited" }
+        "chat": {
+          "tier": "Free",
+          "quota": "unlimited"
+        }
       }
     },
     "stripe": {
       "status": "pending",
       "services": {
-        "payments": { "tier": "Free", "quota": "pay per use" }
+        "payments": {
+          "tier": "Free",
+          "quota": "pay per use"
+        }
       }
     },
     "lemonSqueezy": {
       "status": "pending",
       "services": {
-        "payments": { "tier": "Free", "quota": "pay per use" }
+        "payments": {
+          "tier": "Free",
+          "quota": "pay per use"
+        }
       }
     },
     "auth0": {
       "status": "pending",
       "services": {
-        "auth": { "tier": "Free", "quota": "7K MAU" }
+        "auth": {
+          "tier": "Free",
+          "quota": "7K MAU"
+        }
       }
     },
     "clerk": {
       "status": "pending",
       "services": {
-        "auth": { "tier": "Free", "quota": "10K MAU" }
+        "auth": {
+          "tier": "Free",
+          "quota": "10K MAU"
+        }
       }
     },
     "firebase": {
       "status": "pending",
       "services": {
-        "auth": { "tier": "Free", "quota": "unlimited" },
-        "firestore": { "tier": "Free", "quota": "1GB" },
-        "hosting": { "tier": "Free", "quota": "10GB bandwidth" },
-        "storage": { "tier": "Free", "quota": "5GB" },
-        "functions": { "tier": "Free", "quota": "2M/month" }
+        "auth": {
+          "tier": "Free",
+          "quota": "unlimited"
+        },
+        "firestore": {
+          "tier": "Free",
+          "quota": "1GB"
+        },
+        "hosting": {
+          "tier": "Free",
+          "quota": "10GB bandwidth"
+        },
+        "storage": {
+          "tier": "Free",
+          "quota": "5GB"
+        },
+        "functions": {
+          "tier": "Free",
+          "quota": "2M/month"
+        }
       }
     },
     "appwrite": {
       "status": "pending",
       "services": {
-        "database": { "tier": "Free", "quota": "unlimited" },
-        "auth": { "tier": "Free", "quota": "75K MAU" },
-        "storage": { "tier": "Free", "quota": "2GB" },
-        "functions": { "tier": "Free", "quota": "750K executions" }
+        "database": {
+          "tier": "Free",
+          "quota": "unlimited"
+        },
+        "auth": {
+          "tier": "Free",
+          "quota": "75K MAU"
+        },
+        "storage": {
+          "tier": "Free",
+          "quota": "2GB"
+        },
+        "functions": {
+          "tier": "Free",
+          "quota": "750K executions"
+        }
       }
     },
     "pocketbase": {
       "status": "pending",
       "services": {
-        "backend": { "tier": "Self-hosted", "quota": "unlimited" }
+        "backend": {
+          "tier": "Self-hosted",
+          "quota": "unlimited"
+        }
+      }
+    },
+    "ibm": {
+      "status": "active",
+      "region": "us-south",
+      "code_engine_project": "psm-multicloud",
+      "services": {
+        "codeEngine": {
+          "apps": {
+            "psm-bridge": {
+              "url": "https://psm-bridge.24izjue4x2ll.us-south.codeengine.appdomain.cloud",
+              "status": "ready"
+            },
+            "psm-ai": {
+              "url": "https://psm-ai.24izjue4x2ll.us-south.codeengine.appdomain.cloud",
+              "status": "ready"
+            },
+            "psm-events": {
+              "url": "https://psm-events.24izjue4x2ll.us-south.codeengine.appdomain.cloud",
+              "status": "ready"
+            }
+          }
+        },
+        "watson": {
+          "stt": {
+            "tier": "Lite",
+            "status": "active"
+          },
+          "tts": {
+            "tier": "Lite",
+            "status": "active"
+          },
+          "nlu": {
+            "tier": "Lite",
+            "status": "active"
+          },
+          "assistant": {
+            "tier": "Lite",
+            "status": "active"
+          },
+          "discovery": {
+            "tier": "Lite",
+            "status": "active"
+          }
+        },
+        "watsonx": {
+          "ai": {
+            "tier": "Lite",
+            "status": "active"
+          },
+          "governance": {
+            "tier": "Lite",
+            "status": "active"
+          }
+        },
+        "cloudObjectStorage": {
+          "tier": "Lite",
+          "quota": "25GB"
+        },
+        "cloudant": {
+          "tier": "Lite",
+          "quota": "1GB"
+        },
+        "eventNotifications": {
+          "tier": "Lite",
+          "status": "active"
+        },
+        "keyProtect": {
+          "tier": "Free",
+          "status": "active"
+        },
+        "secretsManager": {
+          "tier": "Trial",
+          "status": "active"
+        }
       }
     }
   },
