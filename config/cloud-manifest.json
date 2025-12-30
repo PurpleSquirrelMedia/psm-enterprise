@@ -192,6 +192,7 @@
     "github": {
       "status": "active",
       "url": "https://github.com/PurpleSquirrelMedia/psm-enterprise",
+      "pages_url": "https://purplesquirrelmedia.github.io/psm-enterprise/",
       "services": {
         "actions": { "tier": "Free", "quota": "2000 mins/month" },
         "packages": { "tier": "Free", "quota": "500MB storage" },
