@@ -26,6 +26,9 @@ const ENDPOINTS = {
     functions: 'https://psm-enterprise.netlify.app/api/status',
     clouds: 'https://psm-enterprise.netlify.app/api/clouds',
   },
+  gcp: {
+    functions: 'https://us-central1-gmail-481217.cloudfunctions.net/psm-status',
+  },
   local: {
     processor: 'http://localhost:3001/api/status',
     gateway: 'http://localhost:3002/api/status',

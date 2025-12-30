@@ -73,7 +73,8 @@
       }
     },
     "gcp": {
-      "status": "pending", 
+      "status": "active",
+      "url": "https://us-central1-gmail-481217.cloudfunctions.net/psm-status",
       "services": {
         "cloudFunctions": { "tier": "Free", "quota": "2M invocations" },
         "firestore": { "tier": "Free", "quota": "1GB storage" },

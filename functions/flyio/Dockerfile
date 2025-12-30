@@ -4,7 +4,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy gateway code
-COPY ../../gateway/unified-api.js ./
+COPY unified-api.js ./
 
 # Install dependencies if needed
 RUN npm init -y
