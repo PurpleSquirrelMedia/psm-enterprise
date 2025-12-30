@@ -22,8 +22,13 @@ const ENDPOINTS = {
     functions: 'https://vercel-dusky-pi.vercel.app/api/status',
     health: 'https://vercel-dusky-pi.vercel.app/api/health',
   },
+  netlify: {
+    functions: 'https://psm-enterprise.netlify.app/api/status',
+    clouds: 'https://psm-enterprise.netlify.app/api/clouds',
+  },
   local: {
     processor: 'http://localhost:3001/api/status',
+    gateway: 'http://localhost:3002/api/status',
   }
 };
 
