@@ -76,10 +76,12 @@
       position: fixed;
       top: 2rem;
       left: 2rem;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.2rem;
-      letter-spacing: 0.2em;
-      color: var(--purple);
+      z-index: 100;
+    }
+
+    .logo-img {
+      height: 36px;
+      width: auto;
     }
 
     /* Stats bar */
@@ -286,7 +288,9 @@
   <div class="grid-bg"></div>
   <div class="scan-line"></div>
 
-  <div class="logo">PURPLE SQUIRREL</div>
+  <div class="logo">
+    <img src="logo.png" alt="Purple Squirrel Media" class="logo-img">
+  </div>
 
   <div class="stats-bar">
     <div class="stat-item">

@@ -110,14 +110,14 @@
       position: fixed;
       top: 2rem;
       left: 2rem;
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 0.9rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--violet-bright);
       opacity: 0;
       animation: fadeSlideDown 1s ease forwards 0.2s;
+      z-index: 100;
+    }
+
+    .logo-img {
+      height: 40px;
+      width: auto;
     }
 
     @keyframes fadeSlideDown {
@@ -371,7 +371,9 @@
   </div>
   <div class="grain"></div>
 
-  <div class="logo">Purple Squirrel</div>
+  <div class="logo">
+    <img src="logo.png" alt="Purple Squirrel Media" class="logo-img">
+  </div>
 
   <main>
     <div class="hero">
