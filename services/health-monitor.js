@@ -16,6 +16,7 @@ const ENDPOINTS = {
     server: 'http://163.192.105.31:8096/health',
   },
   cloudflare: {
+    pages: 'https://psm-dashboard.pages.dev',
     workers: 'https://psm-api.purplesquirrel.workers.dev/api/status',
   },
   vercel: {

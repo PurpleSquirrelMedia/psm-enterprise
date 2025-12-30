@@ -33,8 +33,9 @@
       }
     },
     "cloudflare": {
-      "status": "pending",
-      "note": "Register workers.dev subdomain at https://dash.cloudflare.com/7c5d21f0b32b4bbe0b68e90fc75c327e/workers/onboarding",
+      "status": "active",
+      "url": "https://psm-dashboard.pages.dev",
+      "note": "Pages deployed, Workers need subdomain registration",
       "services": {
         "workers": { "tier": "Free", "quota": "100K req/day", "deployed": true, "needsSubdomain": true },
         "pages": { "tier": "Free", "quota": "500 builds/month" },

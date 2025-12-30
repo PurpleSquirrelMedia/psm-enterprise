@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSM Global Command Center</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap');
+
+    :root {
+      --bg: #0a0a12;
+      --surface: #12121c;
+      --border: #2a2a40;
+      --purple: #7c3aed;
+      --purple-glow: rgba(124, 58, 237, 0.4);
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --text-dim: #64748b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+
+    header {
+      padding: 2rem 3rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--purple), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px var(--purple-glow);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--green);
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+      50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    }
+
+    main { padding: 2rem 3rem; position: relative; z-index: 1; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--purple), #a78bfa);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .metric-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 0.5rem;
+    }
+
+    .metric-value.green { color: var(--green); }
+    .metric-value.purple { color: var(--purple); }
+
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .clouds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .cloud-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .cloud-card:hover {
+      border-color: var(--purple);
+      box-shadow: 0 0 20px var(--purple-glow);
+      transform: translateY(-2px);
+    }
+
+    .cloud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .cloud-name {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .cloud-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .cloud-status.online {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      border: 1px solid var(--green);
+    }
+
+    .cloud-status.pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--yellow);
+      border: 1px solid var(--yellow);
+    }
+
+    .cloud-status.offline {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid var(--red);
+    }
+
+    .cloud-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .services-matrix {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .services-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .service-chip {
+      padding: 0.35rem 0.75rem;
+      background: rgba(124, 58, 237, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .service-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .service-dot.online { background: var(--green); }
+    .service-dot.pending { background: var(--yellow); }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+
+    #health-status { display: none; }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <header>
+    <div class="logo">PSM COMMAND CENTER</div>
+    <div class="status-badge">
+      <div class="pulse"></div>
+      <span>SYSTEMS OPERATIONAL</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Active Clouds</div>
+        <div class="metric-value purple" id="active-clouds">5</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Total Services</div>
+        <div class="metric-value purple" id="total-services">150+</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">System Uptime</div>
+        <div class="metric-value green" id="uptime">82%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Monthly Cost</div>
+        <div class="metric-value green">$0</div>
+      </div>
+    </div>
+
+    <h2>Cloud Providers</h2>
+    <div class="clouds-grid" id="clouds">
+      <!-- Populated by JS -->
+    </div>
+
+    <h2>Service Matrix</h2>
+    <div class="services-matrix">
+      <div class="services-list" id="services">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </main>
+
+  <div class="footer">
+    <span>Purple Squirrel Media Enterprise v2.0.0</span>
+    <span id="last-update">Last updated: --</span>
+  </div>
+
+  <script>
+    const clouds = [
+      { name: 'Azure', status: 'online', region: 'East US', services: 9 },
+      { name: 'Oracle Cloud', status: 'online', region: 'Chicago', services: 4 },
+      { name: 'Vercel', status: 'online', region: 'Global', services: 6 },
+      { name: 'Netlify', status: 'online', region: 'Global', services: 4 },
+      { name: 'GCP', status: 'online', region: 'US Central', services: 7 },
+      { name: 'Cloudflare', status: 'pending', region: 'Global', services: 7 },
+      { name: 'AWS', status: 'pending', region: 'N/A', services: 9 },
+      { name: 'Supabase', status: 'pending', region: 'N/A', services: 5 },
+      { name: 'GitHub', status: 'online', region: 'Global', services: 4 },
+      { name: 'Railway', status: 'pending', region: 'N/A', services: 1 },
+      { name: 'Render', status: 'pending', region: 'N/A', services: 4 },
+      { name: 'Deno', status: 'pending', region: 'N/A', services: 2 },
+    ];
+
+    const services = [
+      'Cloud Functions', 'Object Storage', 'CDN', 'Edge Workers', 'Serverless DB',
+      'Vision AI', 'Speech AI', 'Language AI', 'Document AI', 'Static Hosting',
+      'Load Balancer', 'Container Registry', 'CI/CD', 'Monitoring', 'Logging',
+      'Key-Value Store', 'Queue Service', 'Real-time DB', 'Auth Service', 'Email',
+      'Search', 'Analytics', 'Forms', 'Media Processing', 'Blob Storage'
+    ];
+
+    const cloudsEl = document.getElementById('clouds');
+    clouds.forEach(cloud => {
+      cloudsEl.innerHTML += `
+        <div class="cloud-card">
+          <div class="cloud-header">
+            <span class="cloud-name">${cloud.name}</span>
+            <span class="cloud-status ${cloud.status}">${cloud.status}</span>
+          </div>
+          <div class="cloud-meta">
+            <span>${cloud.region}</span>
+            <span>${cloud.services} services</span>
+          </div>
+        </div>
+      `;
+    });
+
+    const servicesEl = document.getElementById('services');
+    services.forEach((svc, i) => {
+      const status = i < 18 ? 'online' : 'pending';
+      servicesEl.innerHTML += `
+        <div class="service-chip">
+          <div class="service-dot ${status}"></div>
+          ${svc}
+        </div>
+      `;
+    });
+
+    const activeCount = clouds.filter(c => c.status === 'online').length;
+    document.getElementById('active-clouds').textContent = activeCount;
+    document.getElementById('last-update').textContent = 'Last updated: ' + new Date().toLocaleString();
+  </script>
+</body>
+</html>
