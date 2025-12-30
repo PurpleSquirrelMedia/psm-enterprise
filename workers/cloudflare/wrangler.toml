@@ -1,0 +1,9 @@
+name = "psm-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+account_id = "7c5d21f0b32b4bbe0b68e90fc75c327e"
+
+[vars]
+ENVIRONMENT = "production"
+PSM_VERSION = "1.0.0"
+DOMAIN = "purplesquirrel.media"

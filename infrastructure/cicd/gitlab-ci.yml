@@ -1,0 +1,163 @@
+# PSM Enterprise - GitLab CI/CD
+# Layer 8: CI/CD Pipeline (GitLab Alternative)
+
+stages:
+  - test
+  - build
+  - deploy-edge
+  - deploy-cloud
+  - deploy-infra
+  - verify
+
+variables:
+  NODE_VERSION: "20"
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# =====================
+# TEST STAGE
+# =====================
+test:
+  stage: test
+  image: node:${NODE_VERSION}
+  script:
+    - npm ci
+    - npm run lint
+    - npm test
+  coverage: '/Lines\s*:\s*(\d+\.?\d*)%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+
+# =====================
+# BUILD STAGE
+# =====================
+build-gateway:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_SHA ./gateway
+    - docker push $CI_REGISTRY_IMAGE/gateway:$CI_COMMIT_SHA
+  only:
+    - main
+
+build-processor:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/processor:$CI_COMMIT_SHA ./processor
+    - docker push $CI_REGISTRY_IMAGE/processor:$CI_COMMIT_SHA
+  only:
+    - main
+
+# =====================
+# EDGE DEPLOY STAGE
+# =====================
+deploy-cloudflare:
+  stage: deploy-edge
+  image: node:${NODE_VERSION}
+  script:
+    - npm install -g wrangler
+    - cd workers/cloudflare && wrangler deploy
+  environment:
+    name: cloudflare
+    url: https://psm-api.purplesquirrel.workers.dev
+  only:
+    - main
+
+deploy-vercel:
+  stage: deploy-edge
+  image: node:${NODE_VERSION}
+  script:
+    - npm install -g vercel
+    - cd functions/vercel && vercel --prod --token $VERCEL_TOKEN
+  environment:
+    name: vercel
+    url: https://vercel-dusky-pi.vercel.app
+  only:
+    - main
+
+# =====================
+# CLOUD DEPLOY STAGE
+# =====================
+deploy-aws:
+  stage: deploy-cloud
+  image: amazon/aws-sam-cli-build-image-python3.9
+  script:
+    - cd functions/aws
+    - sam build
+    - sam deploy --no-confirm-changeset
+  environment:
+    name: aws
+  only:
+    - main
+
+deploy-gcp:
+  stage: deploy-cloud
+  image: google/cloud-sdk:latest
+  script:
+    - gcloud auth activate-service-account --key-file=$GCP_KEY
+    - cd functions/gcp
+    - gcloud functions deploy psm-api --runtime nodejs20 --trigger-http
+  environment:
+    name: gcp
+  only:
+    - main
+
+deploy-oracle:
+  stage: deploy-cloud
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$ORACLE_SSH_KEY" | ssh-add -
+  script:
+    - ssh -o StrictHostKeyChecking=no opc@163.192.105.31 "
+        cd /opt/psm &&
+        docker compose pull &&
+        docker compose up -d --remove-orphans
+      "
+  environment:
+    name: oracle
+    url: http://163.192.105.31:8096
+  only:
+    - main
+
+# =====================
+# INFRASTRUCTURE STAGE
+# =====================
+terraform:
+  stage: deploy-infra
+  image: hashicorp/terraform:latest
+  script:
+    - cd infrastructure/iac/terraform
+    - terraform init
+    - terraform plan -out=tfplan
+    - terraform apply -auto-approve tfplan
+  environment:
+    name: infrastructure
+  only:
+    - main
+  when: manual
+
+# =====================
+# VERIFY STAGE
+# =====================
+health-check:
+  stage: verify
+  image: curlimages/curl:latest
+  script:
+    - curl -f https://purplesquirrel.media
+    - curl -f https://vercel-dusky-pi.vercel.app/api/status
+    - curl -f http://163.192.105.31:8096/health
+  only:
+    - main

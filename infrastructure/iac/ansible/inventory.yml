@@ -1,0 +1,65 @@
+# PSM Enterprise - Ansible Inventory
+# Layer 6: Infrastructure as Code
+
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  children:
+    psm_servers:
+      hosts:
+        oracle-arm:
+          ansible_host: 163.192.105.31
+          ansible_user: opc
+          ansible_ssh_private_key_file: ~/.ssh/oracle_key
+          server_role: primary
+          services:
+            - jellyfin
+            - traefik
+            - processor
+            - arr-stack
+
+    monitoring:
+      hosts:
+        oracle-arm:
+          prometheus_enabled: true
+          grafana_enabled: true
+          loki_enabled: true
+
+    edge_workers:
+      hosts:
+        cloudflare:
+          type: worker
+          region: global
+        vercel:
+          type: edge-function
+          region: global
+
+    cloud_providers:
+      children:
+        azure:
+          hosts:
+            azure-eastus:
+              services:
+                - static-web-app
+                - vision-api
+                - speech-api
+                - language-api
+                - doc-intelligence
+                - translator
+
+        aws:
+          hosts:
+            aws-us-east-1:
+              services:
+                - lambda
+                - s3
+                - dynamodb
+
+        gcp:
+          hosts:
+            gcp-us-central1:
+              services:
+                - cloud-functions
+                - firestore
+                - cloud-run

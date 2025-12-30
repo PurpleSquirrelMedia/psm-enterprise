@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSM Global Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #050508;
+      --abyss: #0a0a0f;
+      --deep: #0f0f18;
+      --surface: #151520;
+      --elevated: #1a1a28;
+      --border: #2a2a3d;
+      --muted: #4a4a6a;
+      --text: #c8c8e0;
+      --bright: #e8e8f8;
+      --purple: #8b5cf6;
+      --purple-light: #a78bfa;
+      --purple-glow: #c4b5fd;
+      --violet: #7c3aed;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --glow-purple: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+      --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.5);
+      --glow-emerald: 0 0 15px rgba(16, 185, 129, 0.6);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: var(--void);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Animated grid background */
+    .grid-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridPulse 4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* Scan line effect */
+    .scanlines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 2px,
+        rgba(0, 0, 0, 0.1) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.3;
+    }
+
+    /* Main container */
+    .command-center {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: linear-gradient(180deg, var(--deep) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--violet) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: white;
+      box-shadow: var(--glow-purple);
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: var(--glow-purple); }
+      50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.8), 0 0 60px rgba(139, 92, 246, 0.4); }
+    }
+
+    .logo-text h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--bright);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .logo-text span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--purple-light);
+      letter-spacing: 0.2em;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .header-stat {
+      text-align: right;
+    }
+
+    .header-stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--purple-light);
+      text-shadow: var(--glow-purple);
+    }
+
+    .header-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .status-live {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 20px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--emerald);
+      border-radius: 50%;
+      animation: livePulse 1.5s ease-in-out infinite;
+      box-shadow: var(--glow-emerald);
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .live-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--emerald);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Main grid layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      grid-template-rows: auto auto 1fr;
+      gap: 1.5rem;
+      padding: 0 1rem;
+    }
+
+    /* Network visualization */
+    .network-section {
+      grid-column: 1 / -1;
+      background: var(--deep);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      height: 280px;
+    }
+
+    .network-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--purple), transparent);
+    }
+
+    .network-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 1rem;
+    }
+
+    .network-canvas {
+      position: relative;
+      width: 100%;
+      height: calc(100% - 2rem);
+    }
+
+    /* Cloud nodes */
+    .cloud-node {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .cloud-node:hover {
+      transform: scale(1.1);
+    }
+
+    .node-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .node-icon.active {
+      border-color: var(--emerald);
+      box-shadow: var(--glow-emerald);
+    }
+
+    .node-icon.pending {
+      border-color: var(--amber);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+    }
+
+    .node-icon.offline {
+      border-color: var(--rose);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+    }
+
+    .node-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* Central hub */
+    .central-hub {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, var(--purple) 0%, var(--violet) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--glow-purple), inset 0 0 20px rgba(255,255,255,0.1);
+      animation: hubPulse 3s ease-in-out infinite;
+      z-index: 10;
+    }
+
+    @keyframes hubPulse {
+      0%, 100% { 
+        box-shadow: var(--glow-purple), inset 0 0 20px rgba(255,255,255,0.1);
+        transform: translate(-50%, -50%) scale(1);
+      }
+      50% { 
+        box-shadow: 0 0 40px rgba(139, 92, 246, 0.8), 0 0 80px rgba(139, 92, 246, 0.4), inset 0 0 30px rgba(255,255,255,0.2);
+        transform: translate(-50%, -50%) scale(1.05);
+      }
+    }
+
+    .hub-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: white;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    /* Connection lines - SVG */
+    .connections-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .connection-line {
+      stroke: var(--purple);
+      stroke-width: 1;
+      fill: none;
+      opacity: 0.4;
+      stroke-dasharray: 5 5;
+      animation: dashFlow 20s linear infinite;
+    }
+
+    @keyframes dashFlow {
+      to { stroke-dashoffset: -100; }
+    }
+
+    /* Metrics row */
+    .metrics-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+    }
+
+    .metric-card {
+      background: var(--deep);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+    }
+
+    .metric-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(139, 92, 246, 0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+    }
+
+    .metric-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--bright);
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-change {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .metric-change.up {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+    }
+
+    .metric-change.down {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--rose);
+    }
+
+    /* Cloud providers grid */
+    .providers-section {
+      grid-column: 1;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .section-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--purple-light);
+      background: rgba(139, 92, 246, 0.1);
+      padding: 0.25rem 0.75rem;
+      border-radius: 10px;
+    }
+
+    .providers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .provider-card {
+      background: var(--deep);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .provider-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .provider-card:hover {
+      border-color: var(--purple);
+      transform: translateY(-2px);
+    }
+
+    .provider-card:hover::before {
+      opacity: 1;
+    }
+
+    .provider-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .provider-logo {
+      width: 40px;
+      height: 40px;
+      background: var(--surface);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .provider-info h3 {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--bright);
+      margin-bottom: 0.15rem;
+    }
+
+    .provider-status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .status-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-indicator.active { background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
+    .status-indicator.pending { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+    .status-indicator.offline { background: var(--rose); box-shadow: 0 0 8px var(--rose); }
+
+    .status-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .provider-stats {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .provider-stat {
+      text-align: center;
+    }
+
+    .provider-stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--purple-light);
+    }
+
+    .provider-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* Activity feed */
+    .activity-section {
+      background: var(--deep);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      max-height: 500px;
+    }
+
+    .activity-section .section-header {
+      flex-shrink: 0;
+    }
+
+    .activity-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .activity-feed::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .activity-feed::-webkit-scrollbar-track {
+      background: var(--surface);
+      border-radius: 2px;
+    }
+
+    .activity-feed::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .activity-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--emerald); }
+    .activity-icon.warning { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+    .activity-icon.info { background: rgba(6, 182, 212, 0.15); color: var(--cyan); }
+    .activity-icon.process { background: rgba(139, 92, 246, 0.15); color: var(--purple-light); }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-title {
+      font-size: 0.8rem;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .activity-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
+
+    /* Service matrix */
+    .matrix-section {
+      grid-column: 1 / -1;
+      background: var(--deep);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .service-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .service-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .service-item:hover {
+      border-color: var(--purple);
+      background: var(--elevated);
+    }
+
+    .service-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .service-dot.active { background: var(--emerald); }
+    .service-dot.pending { background: var(--amber); }
+    .service-dot.inactive { background: var(--muted); }
+
+    .service-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .service-cloud {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--muted);
+      margin-left: auto;
+      text-transform: uppercase;
+    }
+
+    /* Cost tracker */
+    .cost-banner {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+
+    .cost-main {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .cost-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--emerald);
+      text-shadow: var(--glow-emerald);
+    }
+
+    .cost-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .cost-label {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1rem;
+      color: var(--text);
+      margin-top: 0.25rem;
+    }
+
+    .cost-breakdown {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .cost-item {
+      text-align: center;
+    }
+
+    .cost-item-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+
+    .cost-item-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* Footer */
+    .footer {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      margin-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--purple-light);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: color 0.2s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--purple-glow);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+      .providers-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .metrics-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      .header-stats {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .providers-grid {
+        grid-template-columns: 1fr;
+      }
+      .metrics-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .cost-banner {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="scanlines"></div>
+  
+  <div class="command-center">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-section">
+        <div class="logo-icon">P</div>
+        <div class="logo-text">
+          <h1>Global Command Center</h1>
+          <span>Purple Squirrel Media // Enterprise Cloud Mesh</span>
+        </div>
+      </div>
+      
+      <div class="header-stats">
+        <div class="header-stat">
+          <div class="header-stat-value" id="totalServices">54</div>
+          <div class="header-stat-label">Services</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value" id="totalClouds">12</div>
+          <div class="header-stat-label">Clouds</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value">99.9%</div>
+          <div class="header-stat-label">Uptime</div>
+        </div>
+      </div>
+      
+      <div class="status-live">
+        <div class="live-dot"></div>
+        <span class="live-text">All Systems Operational</span>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Network Visualization -->
+      <section class="network-section">
+        <div class="network-title">Cloud Mesh Network</div>
+        <div class="network-canvas">
+          <svg class="connections-svg" id="connectionsSvg"></svg>
+          
+          <div class="central-hub">
+            <span class="hub-text">PSM<br>CORE</span>
+          </div>
+          
+          <div class="cloud-node" style="left: 10%; top: 20%;" data-cloud="azure">
+            <div class="node-icon active">AZ</div>
+            <span class="node-label">Azure</span>
+          </div>
+          
+          <div class="cloud-node" style="left: 25%; top: 70%;" data-cloud="oracle">
+            <div class="node-icon offline">OCI</div>
+            <span class="node-label">Oracle</span>
+          </div>
+          
+          <div class="cloud-node" style="left: 5%; top: 50%;" data-cloud="aws">
+            <div class="node-icon pending">AWS</div>
+            <span class="node-label">AWS</span>
+          </div>
+          
+          <div class="cloud-node" style="left: 20%; top: 35%;" data-cloud="gcp">
+            <div class="node-icon pending">GCP</div>
+            <span class="node-label">Google</span>
+          </div>
+          
+          <div class="cloud-node" style="right: 10%; top: 20%;" data-cloud="cloudflare">
+            <div class="node-icon pending">CF</div>
+            <span class="node-label">Cloudflare</span>
+          </div>
+          
+          <div class="cloud-node" style="right: 25%; top: 70%;" data-cloud="vercel">
+            <div class="node-icon pending">VCL</div>
+            <span class="node-label">Vercel</span>
+          </div>
+          
+          <div class="cloud-node" style="right: 5%; top: 50%;" data-cloud="supabase">
+            <div class="node-icon pending">SB</div>
+            <span class="node-label">Supabase</span>
+          </div>
+          
+          <div class="cloud-node" style="right: 20%; top: 35%;" data-cloud="netlify">
+            <div class="node-icon pending">NTL</div>
+            <span class="node-label">Netlify</span>
+          </div>
+          
+          <div class="cloud-node" style="left: 35%; top: 15%;" data-cloud="railway">
+            <div class="node-icon pending">RW</div>
+            <span class="node-label">Railway</span>
+          </div>
+          
+          <div class="cloud-node" style="right: 35%; top: 15%;" data-cloud="render">
+            <div class="node-icon pending">RND</div>
+            <span class="node-label">Render</span>
+          </div>
+          
+          <div class="cloud-node" style="left: 40%; top: 80%;" data-cloud="planetscale">
+            <div class="node-icon pending">PS</div>
+            <span class="node-label">PlanetScale</span>
+          </div>
+          
+          <div class="cloud-node" style="right: 40%; top: 80%;" data-cloud="upstash">
+            <div class="node-icon pending">UP</div>
+            <span class="node-label">Upstash</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Metrics Row -->
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon">⚡</div>
+          <div class="metric-value" id="apiCalls">1,247</div>
+          <div class="metric-label">API Calls Today</div>
+          <span class="metric-change up">+12%</span>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon">💾</div>
+          <div class="metric-value" id="storage">2.4 GB</div>
+          <div class="metric-label">Storage Used</div>
+          <span class="metric-change up">+0.1%</span>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon">🔄</div>
+          <div class="metric-value" id="activeJobs">132</div>
+          <div class="metric-label">Queue Jobs</div>
+          <span class="metric-change down">-5%</span>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon">🌐</div>
+          <div class="metric-value" id="bandwidth">48 GB</div>
+          <div class="metric-label">Bandwidth</div>
+          <span class="metric-change up">+8%</span>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon">🎯</div>
+          <div class="metric-value" id="processed">143</div>
+          <div class="metric-label">Files Processed</div>
+          <span class="metric-change up">+13</span>
+        </div>
+      </div>
+
+      <!-- Cloud Providers Grid -->
+      <section class="providers-section">
+        <div class="section-header">
+          <h2 class="section-title">Cloud Providers</h2>
+          <span class="section-count">12 connected</span>
+        </div>
+        
+        <div class="providers-grid" id="providersGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Activity Feed -->
+      <aside class="activity-section">
+        <div class="section-header">
+          <h2 class="section-title">Activity Feed</h2>
+        </div>
+        <div class="activity-feed" id="activityFeed">
+          <!-- Populated by JS -->
+        </div>
+      </aside>
+
+      <!-- Service Matrix -->
+      <section class="matrix-section">
+        <div class="section-header">
+          <h2 class="section-title">Service Health Matrix</h2>
+          <span class="section-count" id="serviceCount">54 services</span>
+        </div>
+        <div class="service-matrix" id="serviceMatrix">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Cost Banner -->
+      <div class="cost-banner">
+        <div>
+          <div class="cost-main">
+            <span class="cost-value">$0</span>
+            <span class="cost-period">/ month</span>
+          </div>
+          <div class="cost-label">Total Infrastructure Cost</div>
+        </div>
+        <div class="cost-breakdown">
+          <div class="cost-item">
+            <div class="cost-item-value">$0</div>
+            <div class="cost-item-label">Compute</div>
+          </div>
+          <div class="cost-item">
+            <div class="cost-item-value">$0</div>
+            <div class="cost-item-label">Storage</div>
+          </div>
+          <div class="cost-item">
+            <div class="cost-item-value">$0</div>
+            <div class="cost-item-label">Network</div>
+          </div>
+          <div class="cost-item">
+            <div class="cost-item-value">$0</div>
+            <div class="cost-item-label">AI/ML</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <span class="footer-text">PSM Enterprise Cloud Mesh v1.0 // Last sync: <span id="lastSync"></span></span>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Documentation</a>
+          <a href="#" class="footer-link">API Status</a>
+          <a href="http://localhost:3001" class="footer-link">Processor</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // Cloud providers data
+    const providers = [
+      { id: 'azure', name: 'Microsoft Azure', status: 'active', services: 9, cost: 0, abbr: 'AZ', url: 'https://purplesquirrel.media' },
+      { id: 'oracle', name: 'Oracle Cloud', status: 'active', services: 4, cost: 0, abbr: 'OCI', url: 'http://163.192.105.31:8096' },
+      { id: 'cloudflare', name: 'Cloudflare', status: 'pending', services: 7, cost: 0, abbr: 'CF', url: 'https://dash.cloudflare.com' },
+      { id: 'vercel', name: 'Vercel', status: 'active', services: 7, cost: 0, abbr: 'VCL', url: 'https://vercel-dusky-pi.vercel.app/api/status' },
+      { id: 'aws', name: 'Amazon AWS', status: 'pending', services: 9, cost: 0, abbr: 'AWS' },
+      { id: 'gcp', name: 'Google Cloud', status: 'pending', services: 7, cost: 0, abbr: 'GCP' },
+      { id: 'supabase', name: 'Supabase', status: 'pending', services: 5, cost: 0, abbr: 'SB' },
+      { id: 'netlify', name: 'Netlify', status: 'pending', services: 4, cost: 0, abbr: 'NTL' },
+      { id: 'railway', name: 'Railway', status: 'pending', services: 1, cost: 0, abbr: 'RW' },
+      { id: 'render', name: 'Render', status: 'pending', services: 4, cost: 0, abbr: 'RND' },
+      { id: 'planetscale', name: 'PlanetScale', status: 'pending', services: 1, cost: 0, abbr: 'PS' },
+      { id: 'upstash', name: 'Upstash', status: 'pending', services: 4, cost: 0, abbr: 'UP' }
+    ];
+
+    // Services data
+    const services = [
+      { name: 'Vision API', cloud: 'AZ', status: 'active' },
+      { name: 'Speech API', cloud: 'AZ', status: 'active' },
+      { name: 'Language API', cloud: 'AZ', status: 'active' },
+      { name: 'Doc Intel', cloud: 'AZ', status: 'active' },
+      { name: 'Translator', cloud: 'AZ', status: 'active' },
+      { name: 'Moderator', cloud: 'AZ', status: 'active' },
+      { name: 'Static Web', cloud: 'AZ', status: 'active' },
+      { name: 'Functions', cloud: 'AZ', status: 'active' },
+      { name: 'CosmosDB', cloud: 'AZ', status: 'pending' },
+      { name: 'Jellyfin', cloud: 'OCI', status: 'active' },
+      { name: 'Traefik', cloud: 'OCI', status: 'active' },
+      { name: 'Processor', cloud: 'OCI', status: 'active' },
+      { name: 'Compute', cloud: 'OCI', status: 'active' },
+      { name: 'Workers', cloud: 'CF', status: 'pending' },
+      { name: 'Pages', cloud: 'CF', status: 'pending' },
+      { name: 'R2 Storage', cloud: 'CF', status: 'pending' },
+      { name: 'D1 Database', cloud: 'CF', status: 'pending' },
+      { name: 'KV Store', cloud: 'CF', status: 'pending' },
+      { name: 'Hosting', cloud: 'VCL', status: 'active' },
+      { name: 'Edge Funcs', cloud: 'VCL', status: 'active' },
+      { name: 'Analytics', cloud: 'VCL', status: 'active' },
+      { name: 'API Status', cloud: 'VCL', status: 'active' },
+      { name: 'Lambda', cloud: 'AWS', status: 'pending' },
+      { name: 'S3', cloud: 'AWS', status: 'pending' },
+      { name: 'DynamoDB', cloud: 'AWS', status: 'pending' },
+      { name: 'API Gateway', cloud: 'AWS', status: 'pending' },
+      { name: 'Cognito', cloud: 'AWS', status: 'pending' },
+      { name: 'Cloud Funcs', cloud: 'GCP', status: 'pending' },
+      { name: 'Firestore', cloud: 'GCP', status: 'pending' },
+      { name: 'Cloud Run', cloud: 'GCP', status: 'pending' },
+      { name: 'Storage', cloud: 'GCP', status: 'pending' },
+      { name: 'Database', cloud: 'SB', status: 'pending' },
+      { name: 'Auth', cloud: 'SB', status: 'pending' },
+      { name: 'Storage', cloud: 'SB', status: 'pending' },
+      { name: 'Realtime', cloud: 'SB', status: 'pending' },
+      { name: 'Hosting', cloud: 'NTL', status: 'pending' },
+      { name: 'Functions', cloud: 'NTL', status: 'pending' },
+      { name: 'Forms', cloud: 'NTL', status: 'pending' },
+      { name: 'Compute', cloud: 'RW', status: 'pending' },
+      { name: 'Web Svc', cloud: 'RND', status: 'pending' },
+      { name: 'Static', cloud: 'RND', status: 'pending' },
+      { name: 'MySQL', cloud: 'PS', status: 'pending' },
+      { name: 'Redis', cloud: 'UP', status: 'pending' },
+      { name: 'Kafka', cloud: 'UP', status: 'pending' },
+      { name: 'QStash', cloud: 'UP', status: 'pending' }
+    ];
+
+    // Activities
+    const activities = [
+      { type: 'success', title: 'Vision API processed 3 images', time: '2 min ago', cloud: 'Azure' },
+      { type: 'process', title: 'Added 140 images to queue', time: '5 min ago', cloud: 'Local' },
+      { type: 'info', title: 'Dashboard started on :3001', time: '10 min ago', cloud: 'Local' },
+      { type: 'success', title: 'Azure services connected', time: '15 min ago', cloud: 'Azure' },
+      { type: 'warning', title: 'Oracle Cloud offline', time: '1 hr ago', cloud: 'Oracle' },
+      { type: 'info', title: 'Cloud manifest updated', time: '1 hr ago', cloud: 'System' },
+      { type: 'success', title: 'Website deployed', time: '2 hrs ago', cloud: 'Azure' },
+      { type: 'process', title: 'Contract processing complete', time: '3 hrs ago', cloud: 'Azure' }
+    ];
+
+    // Render providers
+    function renderProviders() {
+      const grid = document.getElementById('providersGrid');
+      grid.innerHTML = providers.map(p => `
+        <div class="provider-card" data-cloud="${p.id}">
+          <div class="provider-header">
+            <div class="provider-logo">${p.abbr}</div>
+            <div class="provider-info">
+              <h3>${p.name}</h3>
+              <div class="provider-status">
+                <span class="status-indicator ${p.status}"></span>
+                <span class="status-text">${p.status}</span>
+              </div>
+            </div>
+          </div>
+          <div class="provider-stats">
+            <div class="provider-stat">
+              <div class="provider-stat-value">${p.services}</div>
+              <div class="provider-stat-label">Services</div>
+            </div>
+            <div class="provider-stat">
+              <div class="provider-stat-value">$${p.cost}</div>
+              <div class="provider-stat-label">Monthly</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render services
+    function renderServices() {
+      const matrix = document.getElementById('serviceMatrix');
+      matrix.innerHTML = services.map(s => `
+        <div class="service-item">
+          <span class="service-dot ${s.status}"></span>
+          <span class="service-name">${s.name}</span>
+          <span class="service-cloud">${s.cloud}</span>
+        </div>
+      `).join('');
+      document.getElementById('serviceCount').textContent = services.length + ' services';
+    }
+
+    // Render activities
+    function renderActivities() {
+      const feed = document.getElementById('activityFeed');
+      const icons = { success: '✓', warning: '⚠', info: 'ℹ', process: '⚙' };
+      feed.innerHTML = activities.map(a => `
+        <div class="activity-item">
+          <div class="activity-icon ${a.type}">${icons[a.type]}</div>
+          <div class="activity-content">
+            <div class="activity-title">${a.title}</div>
+            <div class="activity-meta">${a.cloud} • ${a.time}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Draw connection lines
+    function drawConnections() {
+      const svg = document.getElementById('connectionsSvg');
+      const canvas = document.querySelector('.network-canvas');
+      const hub = document.querySelector('.central-hub');
+      const nodes = document.querySelectorAll('.cloud-node');
+      
+      const rect = canvas.getBoundingClientRect();
+      const hubRect = hub.getBoundingClientRect();
+      const hubX = hubRect.left - rect.left + hubRect.width / 2;
+      const hubY = hubRect.top - rect.top + hubRect.height / 2;
+      
+      let paths = '';
+      nodes.forEach(node => {
+        const nodeRect = node.getBoundingClientRect();
+        const nodeX = nodeRect.left - rect.left + nodeRect.width / 2;
+        const nodeY = nodeRect.top - rect.top + 24;
+        
+        paths += `<path class="connection-line" d="M ${hubX} ${hubY} Q ${(hubX + nodeX) / 2} ${(hubY + nodeY) / 2 - 30} ${nodeX} ${nodeY}"/>`;
+      });
+      
+      svg.innerHTML = paths;
+    }
+
+    // Update time
+    function updateTime() {
+      document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
+    }
+
+    // Initialize
+    renderProviders();
+    renderServices();
+    renderActivities();
+    updateTime();
+    
+    setTimeout(drawConnections, 100);
+    window.addEventListener('resize', drawConnections);
+    setInterval(updateTime, 1000);
+
+    // Simulate live updates
+    setInterval(() => {
+      const apiCalls = document.getElementById('apiCalls');
+      apiCalls.textContent = (parseInt(apiCalls.textContent.replace(',', '')) + Math.floor(Math.random() * 3)).toLocaleString();
+    }, 5000);
+  </script>
+</body>
+</html>

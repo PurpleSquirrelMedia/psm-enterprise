@@ -1,0 +1,201 @@
+# PSM Enterprise - Ansible Playbook
+# Layer 6: Infrastructure as Code (Configuration Management)
+
+---
+- name: PSM Enterprise Server Setup
+  hosts: psm_servers
+  become: true
+  vars:
+    docker_compose_version: "2.24.0"
+    node_version: "20"
+    psm_user: "psm"
+    psm_dir: "/opt/psm"
+
+  tasks:
+    # =====================
+    # SYSTEM SETUP
+    # =====================
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Install essential packages
+      package:
+        name:
+          - curl
+          - wget
+          - git
+          - vim
+          - htop
+          - tmux
+          - jq
+          - unzip
+          - ca-certificates
+          - gnupg
+        state: present
+
+    # =====================
+    # DOCKER INSTALLATION
+    # =====================
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker
+      package:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # =====================
+    # USER SETUP
+    # =====================
+    - name: Create PSM user
+      user:
+        name: "{{ psm_user }}"
+        groups: docker
+        append: yes
+        shell: /bin/bash
+        create_home: yes
+
+    # =====================
+    # DIRECTORY STRUCTURE
+    # =====================
+    - name: Create PSM directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ psm_user }}"
+        group: "{{ psm_user }}"
+        mode: '0755'
+      loop:
+        - "{{ psm_dir }}"
+        - "{{ psm_dir }}/config"
+        - "{{ psm_dir }}/data"
+        - "{{ psm_dir }}/logs"
+        - "{{ psm_dir }}/scripts"
+        - /var/log/psm
+
+    # =====================
+    # FIREWALL
+    # =====================
+    - name: Configure UFW firewall
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - "22"
+        - "80"
+        - "443"
+        - "8096"
+        - "3001"
+        - "3002"
+        - "9090"
+        - "3000"
+      when: ansible_os_family == "Debian"
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+      when: ansible_os_family == "Debian"
+
+    # =====================
+    # DEPLOY APPLICATION
+    # =====================
+    - name: Copy docker-compose file
+      copy:
+        src: ../containers/docker-compose.yml
+        dest: "{{ psm_dir }}/docker-compose.yml"
+        owner: "{{ psm_user }}"
+        group: "{{ psm_user }}"
+        mode: '0644'
+
+    - name: Copy environment file
+      template:
+        src: templates/env.j2
+        dest: "{{ psm_dir }}/.env"
+        owner: "{{ psm_user }}"
+        group: "{{ psm_user }}"
+        mode: '0600'
+
+    - name: Pull Docker images
+      command: docker compose pull
+      args:
+        chdir: "{{ psm_dir }}"
+      become_user: "{{ psm_user }}"
+
+    - name: Start services
+      command: docker compose up -d
+      args:
+        chdir: "{{ psm_dir }}"
+      become_user: "{{ psm_user }}"
+
+    # =====================
+    # MONITORING AGENT
+    # =====================
+    - name: Install Node Exporter
+      get_url:
+        url: https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-arm64.tar.gz
+        dest: /tmp/node_exporter.tar.gz
+      when: ansible_architecture == "aarch64"
+
+    - name: Extract Node Exporter
+      unarchive:
+        src: /tmp/node_exporter.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+
+    - name: Create Node Exporter service
+      copy:
+        content: |
+          [Unit]
+          Description=Node Exporter
+          After=network.target
+
+          [Service]
+          User=node_exporter
+          ExecStart=/usr/local/bin/node_exporter
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/node_exporter.service
+        mode: '0644'
+
+    - name: Start Node Exporter
+      service:
+        name: node_exporter
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+  handlers:
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes

@@ -1,0 +1,91 @@
+# PSM Enterprise - Dynamic Routes
+# Layer 2: Networking - Service Routes
+
+http:
+  routers:
+    # Main website
+    psm-web:
+      rule: "Host(`purplesquirrel.media`)"
+      service: azure-static
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # Jellyfin Media Server
+    jellyfin:
+      rule: "Host(`media.purplesquirrel.media`)"
+      service: jellyfin
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # API Gateway
+    api-gateway:
+      rule: "Host(`api.purplesquirrel.media`)"
+      service: api-gateway
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - rate-limit
+        - cors-headers
+
+    # Processor
+    processor:
+      rule: "Host(`processor.purplesquirrel.media`)"
+      service: psm-processor
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    azure-static:
+      loadBalancer:
+        servers:
+          - url: "https://purplesquirrel.media"
+
+    jellyfin:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:8096"
+
+    api-gateway:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:3002"
+
+    psm-processor:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:3001"
+
+  middlewares:
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+
+    cors-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        accessControlAllowOriginList:
+          - "*"
+        accessControlMaxAge: 100
+        addVaryHeader: true
+
+    secure-headers:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"

@@ -1,0 +1,251 @@
+# PSM Enterprise - Docker Compose
+# Layer 5: Containers and Orchestration
+
+version: '3.9'
+
+services:
+  # ===================
+  # REVERSE PROXY
+  # ===================
+  traefik:
+    image: traefik:v3.0
+    container_name: psm-traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik
+      - traefik-certs:/letsencrypt
+      - traefik-logs:/var/log/traefik
+    networks:
+      - psm-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.purplesquirrel.media`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+
+  # ===================
+  # MEDIA SERVER
+  # ===================
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: psm-jellyfin
+    restart: unless-stopped
+    environment:
+      - JELLYFIN_PublishedServerUrl=https://media.purplesquirrel.media
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - /mnt/media:/media:ro
+    ports:
+      - "8096:8096"
+    networks:
+      - psm-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`media.purplesquirrel.media`)"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+
+  # ===================
+  # PSM PROCESSOR
+  # ===================
+  psm-processor:
+    build:
+      context: ../../psm-processor
+      dockerfile: Dockerfile
+    container_name: psm-processor
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - AZURE_VISION_ENDPOINT=${AZURE_VISION_ENDPOINT}
+      - AZURE_VISION_KEY=${AZURE_VISION_KEY}
+    volumes:
+      - processor-data:/app/data
+      - processor-queue:/app/queue
+    ports:
+      - "3001:3001"
+    networks:
+      - psm-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.processor.rule=Host(`processor.purplesquirrel.media`)"
+
+  # ===================
+  # API GATEWAY
+  # ===================
+  api-gateway:
+    build:
+      context: ../gateway
+      dockerfile: Dockerfile
+    container_name: psm-gateway
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+    ports:
+      - "3002:3002"
+    networks:
+      - psm-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gateway.rule=Host(`api.purplesquirrel.media`)"
+
+  # ===================
+  # DATABASES
+  # ===================
+  redis:
+    image: redis:7-alpine
+    container_name: psm-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - psm-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: psm-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=psm
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=psm_enterprise
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - psm-network
+
+  # ===================
+  # MONITORING
+  # ===================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: psm-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ../observability/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - psm-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: psm-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SERVER_ROOT_URL=https://grafana.purplesquirrel.media
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ../observability/grafana/dashboards:/etc/grafana/provisioning/dashboards
+    ports:
+      - "3000:3000"
+    networks:
+      - psm-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.purplesquirrel.media`)"
+
+  # ===================
+  # LOGGING
+  # ===================
+  loki:
+    image: grafana/loki:latest
+    container_name: psm-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki-data:/loki
+    networks:
+      - psm-network
+
+  # ===================
+  # ARR STACK
+  # ===================
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: psm-sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - sonarr-config:/config
+      - /mnt/media/tv:/tv
+      - /mnt/downloads:/downloads
+    ports:
+      - "8989:8989"
+    networks:
+      - psm-network
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: psm-radarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - radarr-config:/config
+      - /mnt/media/movies:/movies
+      - /mnt/downloads:/downloads
+    ports:
+      - "7878:7878"
+    networks:
+      - psm-network
+
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: psm-prowlarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - prowlarr-config:/config
+    ports:
+      - "9696:9696"
+    networks:
+      - psm-network
+
+networks:
+  psm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  traefik-certs:
+  traefik-logs:
+  jellyfin-config:
+  jellyfin-cache:
+  processor-data:
+  processor-queue:
+  redis-data:
+  postgres-data:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+  sonarr-config:
+  radarr-config:
+  prowlarr-config:

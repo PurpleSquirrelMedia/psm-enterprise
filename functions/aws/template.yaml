@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: PSM Enterprise - AWS Serverless Functions
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs18.x
+    MemorySize: 128
+
+Resources:
+  PSMStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: psm-status
+      CodeUri: psm-status/
+      Handler: index.handler
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /status
+            Method: get
+
+  PSMStorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: psm-enterprise-storage
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+
+  PSMDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: psm-data
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

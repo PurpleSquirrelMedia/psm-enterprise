@@ -1,0 +1,121 @@
+# PSM Enterprise - Alerting Rules
+# Layer 7: Observability
+
+groups:
+  - name: psm-infrastructure
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for 5 minutes"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85%"
+
+      # Disk space low
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk space is below 15%"
+
+  - name: psm-services
+    rules:
+      # Service down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.instance }} has been down for more than 1 minute"
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Error rate is above 5%"
+
+      # High latency
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency on {{ $labels.job }}"
+          description: "95th percentile latency is above 2 seconds"
+
+  - name: psm-cloud-endpoints
+    rules:
+      # Website down
+      - alert: WebsiteDown
+        expr: probe_success{job="blackbox-http", instance="https://purplesquirrel.media"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "purplesquirrel.media is down"
+          description: "Main website has been unreachable for 2 minutes"
+
+      # Vercel down
+      - alert: VercelDown
+        expr: probe_success{job="blackbox-http", instance=~".*vercel.*"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Vercel endpoint is down"
+          description: "Vercel Edge Functions unreachable"
+
+      # Jellyfin down
+      - alert: JellyfinDown
+        expr: probe_success{job="blackbox-http", instance=~".*8096.*"} == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Jellyfin is down"
+          description: "Media server unreachable"
+
+  - name: psm-azure
+    rules:
+      # Azure API quota
+      - alert: AzureQuotaLow
+        expr: azure_cognitive_requests_remaining < 100
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Azure {{ $labels.service }} quota low"
+          description: "Less than 100 requests remaining"
+
+      # Azure API errors
+      - alert: AzureAPIError
+        expr: rate(azure_cognitive_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Azure {{ $labels.service }} errors"
+          description: "Error rate exceeds threshold"

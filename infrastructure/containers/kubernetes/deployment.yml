@@ -1,0 +1,226 @@
+# PSM Enterprise - Kubernetes Deployment
+# Layer 5: Container Orchestration
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: psm-enterprise
+  labels:
+    app.kubernetes.io/name: psm-enterprise
+
+---
+# API Gateway Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psm-gateway
+  namespace: psm-enterprise
+  labels:
+    app: psm-gateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: psm-gateway
+  template:
+    metadata:
+      labels:
+        app: psm-gateway
+    spec:
+      containers:
+        - name: gateway
+          image: ghcr.io/purplesquirrel/psm-gateway:latest
+          ports:
+            - containerPort: 3002
+          env:
+            - name: NODE_ENV
+              value: "production"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 3002
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+---
+# Gateway Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: psm-gateway
+  namespace: psm-enterprise
+spec:
+  selector:
+    app: psm-gateway
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3002
+  type: ClusterIP
+
+---
+# PSM Processor Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psm-processor
+  namespace: psm-enterprise
+  labels:
+    app: psm-processor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: psm-processor
+  template:
+    metadata:
+      labels:
+        app: psm-processor
+    spec:
+      containers:
+        - name: processor
+          image: ghcr.io/purplesquirrel/psm-processor:latest
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - secretRef:
+                name: azure-credentials
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          volumeMounts:
+            - name: queue-storage
+              mountPath: /app/queue
+      volumes:
+        - name: queue-storage
+          persistentVolumeClaim:
+            claimName: processor-queue-pvc
+
+---
+# Processor Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: psm-processor
+  namespace: psm-enterprise
+spec:
+  selector:
+    app: psm-processor
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3001
+
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: psm-enterprise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          command: ["redis-server", "--appendonly", "yes"]
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
+
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: psm-ingress
+  namespace: psm-enterprise
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - api.purplesquirrel.media
+        - processor.purplesquirrel.media
+      secretName: psm-tls
+  rules:
+    - host: api.purplesquirrel.media
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: psm-gateway
+                port:
+                  number: 80
+    - host: processor.purplesquirrel.media
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: psm-processor
+                port:
+                  number: 80
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: psm-gateway-hpa
+  namespace: psm-enterprise
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: psm-gateway
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
