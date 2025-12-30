@@ -149,7 +149,8 @@
       }
     },
     "netlify": {
-      "status": "pending",
+      "status": "active",
+      "url": "https://psm-enterprise.netlify.app",
       "services": {
         "hosting": { "tier": "Free", "quota": "100GB bandwidth" },
         "functions": { "tier": "Free", "quota": "125K invocations" },
@@ -188,6 +189,7 @@
     },
     "github": {
       "status": "active",
+      "url": "https://github.com/PurpleSquirrelMedia/psm-enterprise",
       "services": {
         "actions": { "tier": "Free", "quota": "2000 mins/month" },
         "packages": { "tier": "Free", "quota": "500MB storage" },
